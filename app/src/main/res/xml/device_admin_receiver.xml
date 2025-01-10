@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<device-admin xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-policies>
+        <policy android:name="limit_password" />
+        <policy android:name="watch_login" />
+        <policy android:name="reset_password" />
+        <policy android:name="force_lock" />
+        <policy android:name="wipe_data" />
+    </uses-policies>
+</device-admin>

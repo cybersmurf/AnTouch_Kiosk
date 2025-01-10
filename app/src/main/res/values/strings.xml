@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">AnTouchKiosk</string>
+    <string name="Home">Domů</string>
+    <string name="Settings">Nastavení</string>
+
+    <!-- Device Admin strings -->
+    <string name="device_admin_label">Antouch Kiosk Admin</string>
+    <string name="device_admin_description">Povolí kioskový režim pro Antouch Kiosk aplikaci</string>
+
+    <!-- Navigation strings -->
+    <string name="nav_home">Domů</string>
+    <string name="nav_settings">Nastavení</string>
+
+    <!-- Settings strings -->
+    <string name="settings_url_hint">Výchozí URL adresa</string>
+    <string name="settings_save">Uložit nastavení</string>
+    <string name="settings_kiosk_mode">Kioskový režim</string>
+    <string name="settings_barcode_port">Port čtečky čárových kódů</string>
+    <string name="settings_rfid_port">Port RFID čtečky</string>
+    <string name="default_url_address">Výchozí URL adresa</string>
+    <string name="barcode_port_label">Port čtečky čárových kódů</string>
+    <string name="rfid_port_label">Port RFID čtečky</string>
+    <string name="kiosk_mode_label">Kioskový režim</string>
+    <string name="settings_save_label">Uložit nastavení</string>
+</resources>
