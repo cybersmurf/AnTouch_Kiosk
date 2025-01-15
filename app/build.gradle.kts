@@ -1,3 +1,9 @@
+// You can define these at the top of build.gradle.kts or even in a separate file.
+val majorVersion = 1
+val minorVersion = 0
+val patchVersion = 0
+val buildNumber  = 2  // This can be incremented as needed.
+
 plugins {
     id("com.android.application")
     kotlin("android")
@@ -11,8 +17,8 @@ android {
         applicationId = "cz.emistr.antouchkiosk"
         minSdk = 23
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = buildNumber
+        versionName = "$majorVersion.$minorVersion.$patchVersion"
     }
 
     buildTypes {

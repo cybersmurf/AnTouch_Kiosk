@@ -22,4 +22,9 @@
     <string name="rfid_port_label">Port RFID čtečky</string>
     <string name="kiosk_mode_label">Kioskový režim</string>
     <string name="settings_save_label">Uložit nastavení</string>
+
+
+    <string name="header_image_desc">eMISTR AnTouch</string>
+
+    <string name="version_format">Version: %1$s</string>
 </resources>

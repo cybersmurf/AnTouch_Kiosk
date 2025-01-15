@@ -1,10 +1,7 @@
-// MainActivity.kt
 package cz.emistr.antouchkiosk
-
 
 import android.app.ActivityManager
 import android.app.admin.DevicePolicyManager
-import android.app.admin.DevicePolicyManager.LOCK_TASK_FEATURE_NONE
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -15,12 +12,20 @@ import android.view.MenuItem
 import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
+import java.io.File
+import java.io.FileInputStream
+import java.io.InputStreamReader
+
+object AppConfig {
+    const val VERSION_NAME = "1.0.0"
+}
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     private lateinit var webView: WebView
@@ -56,6 +61,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (preferences.getBoolean("kiosk_mode", false)) {
             startLockTask()
         }
+
+        // Start listening to barcode and RFID ports
+        startListeningToPorts()
+
+        // Set the application version in the navigation drawer header
+        //setAppVersion()
+    }
+
+    private fun setAppVersion() {
+        val versionTextView: TextView = findViewById(R.id.versionTextView)
+        val versionName = AppConfig.VERSION_NAME
+        versionTextView.text = getString(R.string.version_format, versionName)
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -180,5 +197,36 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             stopLockTask()
         }
         super.onDestroy()
+    }
+
+    private fun startListeningToPorts() {
+        val barcodePort = preferences.getString("barcode_port", "")
+        val rfidPort = preferences.getString("rfid_port", "")
+
+        barcodePort?.let { startListeningToPort(it, "setBarCode") }
+        rfidPort?.let { startListeningToPort(it, "setRfid") }
+    }
+
+    private fun startListeningToPort(port: String, jsMethod: String) {
+        Thread {
+            try {
+                val fileInputStream = FileInputStream(File(port))
+                val reader = InputStreamReader(fileInputStream)
+                val buffer = CharArray(1024)
+                var bytesRead: Int
+
+                while (true) {
+                    bytesRead = reader.read(buffer)
+                    if (bytesRead > 0) {
+                        val data = String(buffer, 0, bytesRead)
+                        runOnUiThread {
+                            webView.evaluateJavascript("javascript:$jsMethod('$data')", null)
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }.start()
     }
 }

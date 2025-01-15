@@ -17,6 +17,8 @@ import androidx.compose.material.*
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import java.io.File
+import java.io.FileInputStream
+import java.io.InputStreamReader
 
 class SettingsActivity : AppCompatActivity() {
     private lateinit var preferences: SharedPreferences
@@ -117,7 +119,7 @@ class SettingsActivity : AppCompatActivity() {
                 PasswordDialog(
                     onDismiss = { showDialog = false; kioskModeCheckbox.isChecked = true },
                     onConfirm = { password ->
-                        if (password == "SysAdminAnt") {
+                        if (password == "9009") {
                             disableKioskMode()
                         } else {
                             Toast.makeText(this, "Incorrect password", Toast.LENGTH_SHORT).show()
