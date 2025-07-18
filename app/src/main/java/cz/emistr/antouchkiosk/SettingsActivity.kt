@@ -25,7 +25,9 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var devicePolicyManager: DevicePolicyManager
     private lateinit var urlEditText: EditText
     private lateinit var barcodePortSpinner: Spinner
+    private lateinit var barcodeSpeedSpinner: Spinner
     private lateinit var rfidPortSpinner: Spinner
+    private lateinit var rfidSpeedSpinner: Spinner
     private lateinit var kioskModeCheckbox: CheckBox
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,6 +40,7 @@ class SettingsActivity : AppCompatActivity() {
         setupViews()
         loadSettings()
         setupPortSpinners()
+        setupSpeedSpinners()
 
         // Show password dialog when disabling kiosk mode
         kioskModeCheckbox.setOnCheckedChangeListener { _, isChecked ->
@@ -50,17 +53,24 @@ class SettingsActivity : AppCompatActivity() {
     private fun setupViews() {
         urlEditText = findViewById(R.id.urlEditText)
         barcodePortSpinner = findViewById(R.id.barcodePortSpinner)
+        barcodeSpeedSpinner = findViewById(R.id.barcodeSpeedSpinner)
         rfidPortSpinner = findViewById(R.id.rfidPortSpinner)
+        rfidSpeedSpinner = findViewById(R.id.rfidSpeedSpinner)
         kioskModeCheckbox = findViewById(R.id.kioskModeCheckbox)
 
         findViewById<Button>(R.id.saveButton).setOnClickListener {
             saveSettings()
+
+
         }
     }
 
     private fun loadSettings() {
         urlEditText.setText(preferences.getString("default_url", ""))
         kioskModeCheckbox.isChecked = preferences.getBoolean("kiosk_mode", false)
+
+        urlEditText.isEnabled = !kioskModeCheckbox.isChecked;
+        //urlEditText.setEnabled(!kioskModeCheckbox.isChecked);
     }
 
     private fun setupPortSpinners() {
@@ -79,6 +89,25 @@ class SettingsActivity : AppCompatActivity() {
         }
         ports.indexOf(savedRfidPort).takeIf { it != -1 }?.let {
             rfidPortSpinner.setSelection(it)
+        }
+    }
+
+    private fun setupSpeedSpinners() {
+        val speeds = listOf("9600", "19200", "57600", "115200")
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, speeds)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+        barcodeSpeedSpinner.adapter = adapter
+        rfidSpeedSpinner.adapter = adapter
+
+        val savedBarcodeSpeed = preferences.getString("barcode_speed", "9600")
+        val savedRfidSpeed = preferences.getString("rfid_speed", "9600")
+
+        speeds.indexOf(savedBarcodeSpeed).takeIf { it != -1 }?.let {
+            barcodeSpeedSpinner.setSelection(it)
+        }
+        speeds.indexOf(savedRfidSpeed).takeIf { it != -1 }?.let {
+            rfidSpeedSpinner.setSelection(it)
         }
     }
 
@@ -104,7 +133,9 @@ class SettingsActivity : AppCompatActivity() {
         preferences.edit().apply {
             putString("default_url", urlEditText.text.toString())
             putString("barcode_port", barcodePortSpinner.selectedItem?.toString())
+            putString("barcode_speed", barcodeSpeedSpinner.selectedItem?.toString())
             putString("rfid_port", rfidPortSpinner.selectedItem?.toString())
+            putString("rfid_speed", rfidSpeedSpinner.selectedItem?.toString())
             putBoolean("kiosk_mode", kioskModeCheckbox.isChecked)
         }.apply()
 
@@ -140,6 +171,7 @@ class SettingsActivity : AppCompatActivity() {
             preferences.edit().putBoolean("kiosk_mode", false).apply()
             Toast.makeText(this, "Kiosk mode disabled", Toast.LENGTH_SHORT).show()
         }
+        urlEditText.isEnabled = true;
     }
 
     @Composable

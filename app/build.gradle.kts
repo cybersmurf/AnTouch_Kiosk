@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material.v1110)
     implementation(libs.androidx.constraintlayout)
+    implementation("io.github.xmaihh:serialport:2.1.1")
     implementation("com.github.mik3y:usb-serial-for-android:3.8.1")
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.drawerlayout)
@@ -62,4 +63,6 @@ dependencies {
     testImplementation(libs.junit.junit)
     androidTestImplementation(libs.junit.junit)
 
+    // Přidání JAR souborů ze složky libs
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 }

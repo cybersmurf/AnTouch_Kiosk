@@ -1,5 +1,5 @@
 [versions]
-agp = "8.7.3"
+agp = "8.11.0"
 constraintlayout = "2.2.0"
 coreKtxVersion = "1.15.0"
 drawerlayout = "1.2.0"
