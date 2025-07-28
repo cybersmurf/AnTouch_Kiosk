@@ -1,7 +1,6 @@
 package cz.emistr.antouchkiosk
 
 import BeaconScanner
-import HoneywellKeyboardHandler
 import tp.xmaihh.serialport.SerialHelper
 
 import android.bluetooth.BluetoothAdapter
@@ -67,7 +66,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var componentName: ComponentName
 
     // USB Keyboard Handler
-    private lateinit var usbKeyboardHandler: UsbKeyboardHandler
 
     private lateinit var serialPortFinder: SerialPortFinder
     private lateinit var serialHelper: SerialHelper
@@ -81,7 +79,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private val SCAN_INTERVAL_MS: Long = 15000 // 30 sekund mezi skeny
     private val handler = android.os.Handler(android.os.Looper.getMainLooper())
 
-    private lateinit var honeywellHandler: HoneywellKeyboardHandler
 
 
     @RequiresApi(Build.VERSION_CODES.P)
@@ -106,7 +103,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setupWebView()
         setupDrawer()
         //setupUsbKeyboardHandler() // Add USB keyboard support
-        setupLinuxInputDevices()  // Add this line
+        //setupLinuxInputDevices()  // Add this line
         //setupHoneywellHandler();
         checkAndRequestBluetoothPermissions()
 
@@ -123,11 +120,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun setupHoneywellHandler() {
-        honeywellHandler = HoneywellKeyboardHandler(this, webView)
+        //honeywellHandler = HoneywellKeyboardHandler(this, webView)
     }
 
     private fun setupUsbKeyboardHandler() {
-        usbKeyboardHandler = UsbKeyboardHandler(this, webView)
+        //usbKeyboardHandler = UsbKeyboardHandler(this, webView)
 
         // Add keyboard JavaScript interface to the WebView
         webView.evaluateJavascript(
@@ -348,6 +345,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     // Override onKeyDown method to handle keyboard events
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         // Zamezit změně hlasitosti v kioskovém režimu
         if (isInLockTaskMode() && (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)) {
@@ -365,6 +363,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return super.onKeyDown(keyCode, event)
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
         if (isInLockTaskMode() && (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)) {
             return true
@@ -400,6 +399,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             R.id.nav_settings -> {
                 startActivity(Intent(this, SettingsActivity::class.java))
+            }
+
+            R.id.nav_fingerprint -> {
+                startActivity(Intent(this, FingerprintActivity::class.java))
             }
         }
         drawerLayout.closeDrawer(GravityCompat.START)
@@ -467,7 +470,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onDestroy() {
         // Cleanup the USB keyboard handler
         //usbKeyboardHandler.cleanup()
-        honeywellHandler.cleanup()
+        //honeywellHandler.cleanup()
 
         // Ukončení Lock Task Mode při zavření aplikace
         if (isInLockTaskMode()) {
@@ -660,10 +663,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         })
 
         // Spustit periodické skenování beaconů
-        startPeriodicBeaconScanning()
+        //startPeriodicBeaconScanning()
     }
 
     // Metoda pro kontrolu Bluetooth oprávnění - přidejte do MainActivity
+    @RequiresApi(Build.VERSION_CODES.M)
     private fun hasBluetoothPermissions(): Boolean {
         return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
             checkSelfPermission(android.Manifest.permission.BLUETOOTH_SCAN) == android.content.pm.PackageManager.PERMISSION_GRANTED &&

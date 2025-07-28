@@ -2,6 +2,7 @@
     <string name="app_name">AnTouchKiosk</string>
     <string name="Home">Domů</string>
     <string name="Settings">Nastavení</string>
+    <string name="Fingerprint">Otisky prstů</string>
 
     <!-- Device Admin strings -->
     <string name="device_admin_label">Antouch Kiosk Admin</string>
@@ -10,6 +11,7 @@
     <!-- Navigation strings -->
     <string name="nav_home">Domů</string>
     <string name="nav_settings">Nastavení</string>
+    <string name="nav_fingerprint">Otisky prstů</string>
 
     <!-- Settings strings -->
     <string name="settings_url_hint">Výchozí URL adresa</string>
@@ -23,8 +25,106 @@
     <string name="kiosk_mode_label">Kioskový režim</string>
     <string name="settings_save_label">Uložit nastavení</string>
 
-
     <string name="header_image_desc">eMISTR AnTouch</string>
-
     <string name="version_format">Version: %1$s</string>
+
+    <!-- Fingerprint strings -->
+    <string name="fingerprint_title">Správa otisků prstů</string>
+    <string name="fingerprint_user_id_hint">ID uživatele</string>
+    <string name="fingerprint_start_reader">Spustit čtečku</string>
+    <string name="fingerprint_stop_reader">Zastavit čtečku</string>
+    <string name="fingerprint_register">Registrovat otisk</string>
+    <string name="fingerprint_identify">Identifikovat</string>
+    <string name="fingerprint_delete_user">Smazat uživatele</string>
+    <string name="fingerprint_clear_all">Smazat vše</string>
+    <string name="fingerprint_place_finger">Přiložte prst na čtečku</string>
+    <string name="fingerprint_ready">Připraveno k použití</string>
+    <string name="fingerprint_connecting">Připojuji čtečku...</string>
+    <string name="fingerprint_connected">Čtečka připojena</string>
+    <string name="fingerprint_disconnected">Čtečka odpojena</string>
+    <string name="fingerprint_error">Chyba připojení</string>
+
+    <!-- Error messages -->
+    <string name="error_no_user_id">Zadejte ID uživatele</string>
+    <string name="error_user_exists">Uživatel je již registrován</string>
+    <string name="error_user_not_exists">Uživatel není registrován</string>
+    <string name="error_device_not_found">Čtečka otisků prstů nebyla nalezena</string>
+    <string name="error_device_not_connected">Nejdříve spusťte čtečku</string>
+
+    <!-- Success messages -->
+    <string name="success_user_registered">Uživatel zaregistrován</string>
+    <string name="success_user_deleted">Uživatel smazán</string>
+    <string name="success_all_deleted">Všichni uživatelé smazáni</string>
+    <string name="success_identified">Uživatel identifikován</string>
+
+    <!-- Dialog messages -->
+    <string name="dialog_delete_user_title">Smazat uživatele?</string>
+    <string name="dialog_delete_user_message">Opravdu chcete smazat uživatele %1$s?</string>
+    <string name="dialog_clear_all_title">Smazat všechny uživatele?</string>
+    <string name="dialog_clear_all_message">Tato akce smaže všechny registrované otisky prstů!</string>
+    <string name="dialog_yes">Ano</string>
+    <string name="dialog_no">Ne</string>
+    <string name="dialog_cancel">Zrušit</string>
+
+    <!-- Permission messages -->
+    <string name="permission_granted">Oprávnění udělena</string>
+    <string name="permission_denied">Oprávnění zamítnuta</string>
+    <string name="permission_required">Aplikace potřebuje oprávnění pro správné fungování</string>
+
+    <!-- Registration process -->
+    <string name="registration_step1">Přiložte prst 3x pro registraci</string>
+    <string name="registration_step2">Zbývá %1$d pokusů</string>
+    <string name="registration_same_finger">Přiložte stejný prst</string>
+    <string name="registration_complete">Registrace dokončena</string>
+    <string name="registration_failed">Registrace selhala</string>
+
+    <!-- Identification -->
+    <string name="identification_start">Přiložte prst pro identifikaci</string>
+    <string name="identification_success">Identifikace úspěšná: %1$s</string>
+    <string name="identification_failed">Identifikace selhala</string>
+
+    <!-- USB Device messages -->
+    <string name="usb_device_attached">Čtečka otisků prstů připojena</string>
+    <string name="usb_device_detached">Čtečka otisků prstů odpojena</string>
+    <string name="usb_permission_granted">Oprávnění pro USB zařízení uděleno</string>
+    <string name="usb_permission_denied">Oprávnění pro USB zařízení zamítnuto</string>
+
+    <!-- Connection status -->
+    <string name="connection_status_connected">Připojeno</string>
+    <string name="connection_status_disconnected">Odpojeno</string>
+    <string name="connection_status_connecting">Připojuji...</string>
+    <string name="connection_status_error">Chyba připojení</string>
+
+    <!-- General -->
+    <string name="loading">Načítám...</string>
+    <string name="ok">OK</string>
+    <string name="error">Chyba</string>
+    <string name="warning">Upozornění</string>
+    <string name="info">Informace</string>
+    <string name="cancel">Zrušit</string>
+    <string name="retry">Zkusit znovu</string>
+    <string name="close">Zavřít</string>
+
+    <!-- Validation messages -->
+    <string name="validation_empty_field">Toto pole nesmí být prázdné</string>
+    <string name="validation_invalid_user_id">Neplatné ID uživatele</string>
+    <string name="validation_user_id_too_long">ID uživatele je příliš dlouhé</string>
+    <string name="validation_user_id_too_short">ID uživatele je příliš krátké</string>
+
+    <!-- Database messages -->
+    <string name="database_error_open">Chyba při otevírání databáze</string>
+    <string name="database_error_write">Chyba při zápisu do databáze</string>
+    <string name="database_error_read">Chyba při čtení z databáze</string>
+    <string name="database_initialized">Databáze inicializována</string>
+
+    <!-- Template processing -->
+    <string name="template_processing">Zpracovávám otisk prstu...</string>
+    <string name="template_extracted">Otisk prstu extrahován</string>
+    <string name="template_invalid">Neplatný otisk prstu</string>
+    <string name="template_quality_low">Nízká kvalita otisku</string>
+    <string name="fp_reader_discocennected">Čtečka je odpojená</string>
+    <string name="importDB">Import databáze</string>
+    <string name="exportDB">Export databáze</string>
+    <string name="backText">Zpět</string>
+
 </resources>

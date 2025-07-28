@@ -9,4 +9,8 @@
         android:id="@+id/nav_settings"
         android:icon="@drawable/settings_configuration"
         android:title="@string/Settings" />
+    <item
+        android:id="@+id/nav_fingerprint"
+        android:icon="@drawable/ic_fingerprint"
+        android:title="@string/nav_fingerprint" />
 </menu>

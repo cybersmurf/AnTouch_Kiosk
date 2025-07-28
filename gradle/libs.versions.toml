@@ -1,37 +1,78 @@
 [versions]
-agp = "8.11.0"
+activityCompose = "1.10.1"
+agp = "8.11.1"
+androidxJunit = "1.1.5"
+androidxMaterial = "1.8.3"
+cardview = "1.0.0"
 constraintlayout = "2.2.0"
 coreKtxVersion = "1.15.0"
+coreTesting = "2.2.0"
 drawerlayout = "1.2.0"
+espressoCoreVersion = "3.5.1"
+googleMaterial = "1.11.0"
+hohoUsbSerialForAndroid = "6.1.0"
 kotlin = "1.9.24"
 coreKtx = "1.13.1"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 appcompat = "1.7.0"
+kotlinxCoroutinesAndroid = "1.10.2"
+kotlinxSerializationJson = "1.9.0"
 lifecycleRuntimeKtx = "2.8.7"
+lifecycleViewmodelKtx = "2.9.2"
 material = "1.12.0"
 materialVersion = "1.12.0"
+securityCrypto = "1.1.0-beta01"
+serialport = "2.1.2"
+timber = "5.0.1"
+usbserial = "9.4.0"
 usbSerialForAndroid = "3.4.6"
 junitJunit = "4.13.2"
 uiAndroid = "1.7.6"
+usbSerialForAndroidVersion = "3.8.1"
+workRuntimeKtx = "2.10.2"
 
 [libraries]
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
+androidx-cardview = { module = "androidx.cardview:cardview", version.ref = "cardview" }
 androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-core-ktx-v1120 = { module = "androidx.core:core-ktx", version.ref = "coreKtxVersion" }
+androidx-core-testing = { module = "androidx.arch.core:core-testing", version.ref = "coreTesting" }
 androidx-drawerlayout = { module = "androidx.drawerlayout:drawerlayout", version.ref = "drawerlayout" }
+androidx-espresso-core-v351 = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCoreVersion" }
+androidx-junit-v115 = { module = "androidx.test.ext:junit", version.ref = "androidxJunit" }
+androidx-lifecycle-livedata-ktx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycleViewmodelKtx" }
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
+androidx-material = { module = "androidx.compose.material:material", version.ref = "androidxMaterial" }
+androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "securityCrypto" }
 androidx-ui = { module = "androidx.compose.ui:ui", version.ref = "uiAndroid" }
+androidx-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "uiAndroid" }
+androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "uiAndroid" }
+androidx-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "uiAndroid" }
+androidx-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "uiAndroid" }
+androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
+google-material-v1110 = { module = "com.google.android.material:material", version.ref = "googleMaterial" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesAndroid" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesAndroid" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 material-v1110 = { module = "com.google.android.material:material", version.ref = "materialVersion" }
+serialport = { module = "io.github.xmaihh:serialport", version.ref = "serialport" }
+timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 usb-serial-for-android = { module = "com.github.mik3y:usb-serial-for-android", version.ref = "usbSerialForAndroid" }
 junit-junit = { group = "junit", name = "junit", version.ref = "junitJunit" }
 androidx-ui-android = { group = "androidx.compose.ui", name = "ui-android", version.ref = "uiAndroid" }
+usb-serial-for1-android = { module = "com.hoho.android.usbserial:usb-serial-for-android", version.ref = "hohoUsbSerialForAndroid" }
+usb-serial-for1-android-v381 = { module = "com.github.mik3y:usb-serial-for-android", version.ref = "usbSerialForAndroidVersion" }
+usbserial = { module = "com.github.felHR85:UsbSerial", version.ref = "usbserial" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

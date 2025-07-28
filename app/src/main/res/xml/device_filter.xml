@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- res/xml/device_filter.xml -->
+<resources>
+    <!-- ZKTeco Live20R -->
+    <usb-device vendor-id="6997" product-id="288" />
+    <!-- ZKTeco Live10R -->
+    <usb-device vendor-id="6997" product-id="292" />
+    <!-- Additional ZKTeco devices can be added here -->
+</resources>
