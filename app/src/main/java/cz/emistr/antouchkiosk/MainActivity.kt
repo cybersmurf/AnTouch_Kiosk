@@ -204,6 +204,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return activityManager.lockTaskModeState != ActivityManager.LOCK_TASK_MODE_NONE
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     private fun checkAndRequestBluetoothPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             // Android 12 a novější - potřebujeme BLUETOOTH_CONNECT a BLUETOOTH_SCAN
@@ -427,6 +428,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     // Sem přidejte onRequestPermissionsResult
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
