@@ -126,5 +126,13 @@
     <string name="importDB">Import databáze</string>
     <string name="exportDB">Export databáze</string>
     <string name="backText">Zpět</string>
+    <string name="newFP">Nový</string>
+    <string name="cancelFPreg">Zrušit</string>
+    <string name="btnClose">Zavřít</string>
+    <string name="fpTextInfo">Pro zahájení stiskněte tlačítko \'Nový\'</string>
+    <string name="fpImage1">FPImage1</string>
+    <string name="fpImage2">FPImage2</string>
+    <string name="fpImage3">FPImage3</string>
+    <string name="zk_sensor">ZK sensor</string>
 
 </resources>

@@ -30,12 +30,15 @@
             android:id="@+id/buttonEdit"
             android:layout_width="match_parent"
             android:layout_height="70dp"
-            android:text="Editovat"/>
+            android:backgroundTint="@android:color/holo_orange_dark"
+            android:text="Editovat" />
+
         <Button
             android:id="@+id/buttonDelete"
             android:layout_width="match_parent"
             android:layout_height="70dp"
-            android:text="Smazat"/>
+            android:backgroundTint="@android:color/holo_red_light"
+            android:text="Smazat" />
 
         <View
             android:layout_width="0dp"
@@ -46,7 +49,7 @@
             android:id="@+id/buttonClose"
             android:layout_width="match_parent"
             android:layout_height="70dp"
-            android:text="Zavřít"/>
+            android:text="Zavřít" />
     </LinearLayout>
 
 </LinearLayout>
