@@ -632,6 +632,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     // Metoda pro inicializaci a spuštění skenování beaconů - přidejte do MainActivity
+    @RequiresApi(Build.VERSION_CODES.M)
     private fun initializeBeaconScanning() {
         // Kontrola, zda máme oprávnění pro Bluetooth
         if (!hasBluetoothPermissions()) {

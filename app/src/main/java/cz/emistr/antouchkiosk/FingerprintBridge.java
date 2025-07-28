@@ -2,12 +2,7 @@ package cz.emistr.antouchkiosk;
 
 // soubor: FingerprintBridge.java
 import android.util.Log;
-import com.zkteco.android.biometric.module.fingerprintreader.FingerprintCaptureListener;
-import com.zkteco.android.biometric.module.fingerprintreader.FingerprintFactory;
-import com.zkteco.android.biometric.module.fingerprintreader.FingerprintSensor;
 import com.zkteco.android.biometric.module.fingerprintreader.ZKFingerService;
-import com.zkteco.android.biometric.module.fingerprintreader.exception.FingerprintException;
-
 
 public class FingerprintBridge {
     public static int performIdentify(byte[] template, byte[] buffer) {
