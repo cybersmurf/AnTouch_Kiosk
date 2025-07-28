@@ -7,20 +7,35 @@ import android.util.Log
 import org.json.JSONObject
 import java.io.File
 
+data class FingerprintUser(
+    val id: Int,
+    val workerId: String,
+    val name: String,
+    val feature: String,
+    val createdAt: String
+)
+
 class FingerprintDBManager {
 
     companion object {
         private const val TAG = "FingerprintDBManager"
-        private const val DATABASE_VERSION = 1
+        // Zvýšení verze databáze kvůli změně schématu
+        private const val DATABASE_VERSION = 2
         private const val TABLE_USERS = "users"
         private const val COLUMN_ID = "id"
+        private const val COLUMN_WORKER_ID = "worker_id"
+        private const val COLUMN_NAME = "name"
         private const val COLUMN_FEATURE = "feature"
+        private const val COLUMN_CREATED_AT = "created_at"
 
+        // Aktualizovaný SQL - odstraněno UNIQUE u worker_id
         private const val CREATE_TABLE_USERS = """
             CREATE TABLE IF NOT EXISTS $TABLE_USERS (
-                $COLUMN_ID TEXT PRIMARY KEY,
+                $COLUMN_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                $COLUMN_WORKER_ID TEXT NOT NULL,
+                $COLUMN_NAME TEXT,
                 $COLUMN_FEATURE TEXT NOT NULL,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                $COLUMN_CREATED_AT DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         """
     }
@@ -30,14 +45,19 @@ class FingerprintDBManager {
 
     fun openDatabase(dbPath: String): Boolean {
         return try {
-            // Ensure directory exists
             val dbFile = File(dbPath)
             dbFile.parentFile?.mkdirs()
 
-            database = SQLiteDatabase.openOrCreateDatabase(dbPath, null)
+            database = SQLiteDatabase.openDatabase(dbPath, null, SQLiteDatabase.OPEN_READWRITE or SQLiteDatabase.CREATE_IF_NECESSARY)
+
+            // Upgrade schématu, pokud je potřeba
+            if (database!!.version < DATABASE_VERSION) {
+                database!!.execSQL("DROP TABLE IF EXISTS $TABLE_USERS")
+                database!!.version = DATABASE_VERSION
+            }
+
             database?.execSQL(CREATE_TABLE_USERS)
             isOpen = true
-
             Log.d(TAG, "Database opened successfully: $dbPath")
             true
         } catch (e: Exception) {
@@ -45,6 +65,44 @@ class FingerprintDBManager {
             false
         }
     }
+
+    fun getUserById(id: Int): FingerprintUser? {
+        if (!isOpen) return null
+        return try {
+            val cursor = database!!.query(
+                TABLE_USERS, null, "$COLUMN_ID = ?", arrayOf(id.toString()), null, null, null
+            )
+            val user = if (cursor.moveToFirst()) {
+                FingerprintUser(
+                    id = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID)),
+                    workerId = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_WORKER_ID)),
+                    name = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME)),
+                    feature = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_FEATURE)),
+                    createdAt = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CREATED_AT))
+                )
+            } else {
+                null
+            }
+            cursor.close()
+            user
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    fun getNextUserId(): Int {
+        if (!isOpen) return 1
+        return try {
+            val cursor = database!!.rawQuery("SELECT MAX($COLUMN_ID) FROM $TABLE_USERS", null)
+            val nextId = if (cursor.moveToFirst()) cursor.getInt(0) + 1 else 1
+            cursor.close()
+            nextId
+        } catch (e: Exception) {
+            1
+        }
+    }
+
+
 
     fun closeDatabase() {
         try {
@@ -56,30 +114,27 @@ class FingerprintDBManager {
         }
     }
 
-    fun insertUser(userId: String, feature: String): Boolean {
-        if (!isOpen || database == null) {
-            Log.w(TAG, "Database is not open")
-            return false
-        }
-
+    fun insertUser(workerId: String, name: String, feature: String): Boolean {
+        if (!isOpen) return false
         return try {
             val values = ContentValues().apply {
-                put(COLUMN_ID, userId)
+                put(COLUMN_WORKER_ID, workerId)
+                put(COLUMN_NAME, name)
                 put(COLUMN_FEATURE, feature)
             }
-
-            val result = database!!.insert(TABLE_USERS, null, values)
-            val success = result != -1L
-
-            if (success) {
-                Log.d(TAG, "User inserted successfully: $userId")
-            } else {
-                Log.w(TAG, "Failed to insert user: $userId")
-            }
-
-            success
+            database!!.insert(TABLE_USERS, null, values) != -1L
         } catch (e: Exception) {
-            Log.e(TAG, "Error inserting user: $userId", e)
+            Log.e(TAG, "Error inserting user: $workerId", e)
+            false
+        }
+    }
+
+    fun deleteUserById(id: Int): Boolean {
+        if (!isOpen) return false
+        return try {
+            database!!.delete(TABLE_USERS, "$COLUMN_ID = ?", arrayOf(id.toString())) > 0
+        } catch (e: Exception) {
+            Log.e(TAG, "Error deleting user by ID: $id", e)
             false
         }
     }
@@ -136,7 +191,38 @@ class FingerprintDBManager {
             false
         }
     }
+    fun isWorkerIdRegistered(workerId: String): Boolean {
+        if (!isOpen) return false
+        return try {
+            val cursor = database!!.query(TABLE_USERS, arrayOf(COLUMN_ID), "$COLUMN_WORKER_ID = ?", arrayOf(workerId), null, null, null)
+            val exists = cursor.count > 0
+            cursor.close()
+            exists
+        } catch (e: Exception) { false }
+    }
 
+    fun getAllUsers(): List<FingerprintUser> {
+        val users = mutableListOf<FingerprintUser>()
+        if (!isOpen) return users
+        try {
+            val cursor = database!!.query(TABLE_USERS, null, null, null, null, null, "$COLUMN_NAME ASC")
+            while (cursor.moveToNext()) {
+                users.add(
+                    FingerprintUser(
+                        id = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID)),
+                        workerId = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_WORKER_ID)),
+                        name = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME)),
+                        feature = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_FEATURE)),
+                        createdAt = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CREATED_AT))
+                    )
+                )
+            }
+            cursor.close()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting all users", e)
+        }
+        return users
+    }
     fun queryUserList(): HashMap<String, String> {
         val userList = HashMap<String, String>()
 
@@ -266,38 +352,10 @@ class FingerprintDBManager {
         }
     }
 
-    fun getAllUsers(): List<FingerprintUser> {
-        val users = mutableListOf<FingerprintUser>()
-
-        if (!isOpen || database == null) {
-            Log.w(TAG, "Database is not open")
-            return users
-        }
-
-        return try {
-            val cursor = database!!.query(
-                TABLE_USERS,
-                arrayOf(COLUMN_ID, COLUMN_FEATURE, "created_at"),
-                null, null, null, null,
-                "created_at DESC"
-            )
-
-            while (cursor.moveToNext()) {
-                val id = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ID))
-                val feature = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_FEATURE))
-                val createdAt = cursor.getString(cursor.getColumnIndexOrThrow("created_at"))
-
-                users.add(FingerprintUser(id, feature, createdAt))
-            }
-
-            cursor.close()
-            Log.d(TAG, "Retrieved ${users.size} users")
-            users
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting all users", e)
-            users
-        }
-    }
+    /**
+     * Exportuje databázi do JSON formátu.
+     * @return JSON řetězec s uživateli, nebo null v případě chyby.
+     */
 
     fun exportDatabase(): String? {
         if (!isOpen || database == null) {
@@ -344,20 +402,19 @@ class FingerprintDBManager {
             val jsonObject = JSONObject(jsonString)
             val usersArray = jsonObject.getJSONArray("users")
 
-            // Začátek transakce pro zrychlení a bezpečnost
             database!!.beginTransaction()
-
-            // 1. Vymazání stávajících uživatelů
             clear()
 
             var importedCount = 0
             for (i in 0 until usersArray.length()) {
                 val userObject = usersArray.getJSONObject(i)
-                val id = userObject.getString("id")
+                // Očekáváme, že JSON bude obsahovat workerId a name
+                val workerId = userObject.getString("workerId")
+                val name = userObject.getString("name")
                 val feature = userObject.getString("feature")
-                // created_at můžeme ignorovat, protože se nastaví automaticky
 
-                if (insertUser(id, feature)) {
+                // Opravené volání metody insertUser
+                if (insertUser(workerId, name, feature)) {
                     importedCount++
                 }
             }
@@ -367,17 +424,12 @@ class FingerprintDBManager {
             importedCount
         } catch (e: Exception) {
             Log.e(TAG, "Error importing database", e)
-            -1 // Vracíme -1 pro signalizaci chyby
+            -1
         } finally {
             if (database!!.inTransaction()) {
-                database!!.endTransaction() // Ukončení transakce
+                database!!.endTransaction()
             }
         }
     }
 }
 
-data class FingerprintUser(
-    val id: String,
-    val feature: String,
-    val createdAt: String
-)
