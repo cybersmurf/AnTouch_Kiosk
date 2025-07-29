@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp">
@@ -8,31 +9,37 @@
         android:id="@+id/scan_placeholders"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true">
+        android:orientation="horizontal">
 
         <ImageView
             android:id="@+id/imageScan1"
             android:layout_width="120dp"
             android:layout_height="150dp"
+            android:layout_margin="8dp"
             android:background="@drawable/border"
-            android:layout_margin="8dp"/>
+            android:contentDescription="@string/fpImage1" />
+
         <ImageView
             android:id="@+id/imageScan2"
             android:layout_width="120dp"
             android:layout_height="150dp"
+            android:layout_margin="8dp"
             android:background="@drawable/border"
-            android:layout_margin="8dp"/>
+            android:contentDescription="@string/fpImage2" />
+
         <ImageView
             android:id="@+id/imageScan3"
             android:layout_width="120dp"
             android:layout_height="150dp"
+            android:layout_margin="8dp"
             android:background="@drawable/border"
-            android:layout_margin="8dp"/>
+            android:contentDescription="@string/fpImage3" />
     </LinearLayout>
 
     <LinearLayout
+        style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -41,24 +48,19 @@
 
         <Button
             android:id="@+id/buttonNew"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="150dp"
             android:layout_height="70dp"
-            android:text="Nový" />
+            android:text="@string/newFP" />
 
         <Button
             android:id="@+id/buttonCancelRegistration"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="150dp"
             android:layout_height="70dp"
-            android:text="Zrušit" />
+            android:backgroundTint="@android:color/holo_red_light"
+            android:text="@string/cancelFPreg" />
 
-        <TextView
-            android:id="@+id/textSensorStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:drawableStart="@drawable/ic_circle_gray"
-            android:gravity="center_vertical"
-            android:text="ZK sensor" />
     </LinearLayout>
 
     <TextView
@@ -67,15 +69,26 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/scan_placeholders"
         android:layout_marginTop="16dp"
-        android:text="Pro zahájení stiskněte tlačítko 'Nový'"
+        android:text="@string/fpTextInfo"
         android:textSize="18sp"
-        android:gravity="center_horizontal"/>
+        android:gravity="center_horizontal" />
 
     <Button
         android:id="@+id/buttonClose"
         android:layout_width="150dp"
         android:layout_height="70dp"
-        android:text="Zavřít"
+        android:text="@string/btnClose"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"/>
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:id="@+id/textSensorStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/zk_sensor"
+        android:textAlignment="textEnd"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="false"
+        app:drawableStartCompat="@drawable/ic_circle_gray" />
 </RelativeLayout>

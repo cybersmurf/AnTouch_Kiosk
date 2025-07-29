@@ -38,12 +38,14 @@ android {
             manifestPlaceholders["fileProviderAuthority"] = "cz.emistr.antouchkiosk.debug.fileprovider"
         }
         release {
+            manifestPlaceholders += mapOf()
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug")
             manifestPlaceholders["fileProviderAuthority"] = "cz.emistr.antouchkiosk.release.fileprovider"
         }
     }
