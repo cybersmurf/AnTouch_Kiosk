@@ -48,14 +48,16 @@
 
         <Button
             android:id="@+id/buttonNew"
-            style="?android:attr/buttonBarButtonStyle"
+            style="@android:style/Widget.DeviceDefault.Button.Colored"
             android:layout_width="150dp"
             android:layout_height="70dp"
-            android:text="@string/newFP" />
+            android:backgroundTint="@color/teal_200"
+            android:text="@string/newFP"
+            android:textColor="@color/black" />
 
         <Button
             android:id="@+id/buttonCancelRegistration"
-            style="?android:attr/buttonBarButtonStyle"
+            style="@android:style/Widget.DeviceDefault.Button.Colored"
             android:layout_width="150dp"
             android:layout_height="70dp"
             android:backgroundTint="@android:color/holo_red_light"

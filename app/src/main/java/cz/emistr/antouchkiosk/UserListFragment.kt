@@ -17,6 +17,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.io.File
@@ -72,6 +73,12 @@ class UserListFragment : Fragment() {
         recyclerView = view.findViewById(R.id.recyclerViewUsers)
         recyclerView.layoutManager = LinearLayoutManager(context)
 
+        // PŘIDÁNO: Vytvoření a přidání oddělovače
+        val dividerItemDecoration = DividerItemDecoration(recyclerView.context,
+            (recyclerView.layoutManager as LinearLayoutManager).orientation)
+        recyclerView.addItemDecoration(dividerItemDecoration)
+        // KONEC PŘIDANÉ ČÁSTI
+
         buttonImport = view.findViewById(R.id.buttonImport)
         buttonExport = view.findViewById(R.id.buttonExport)
         buttonDelete = view.findViewById(R.id.buttonDelete)
@@ -122,7 +129,7 @@ class UserListFragment : Fragment() {
             return
         }
 
-        val importDir = File(Environment.getExternalStorageDirectory(), "AnTouchKiosk/import/")
+        val importDir = File(Environment.getExternalStorageDirectory(), "AnTouchKiosk/export/")
         if (!importDir.exists() || !importDir.isDirectory) {
             importDir.mkdirs()
             Toast.makeText(requireContext(), "Složka pro import byla vytvořena. Vložte do ní soubory (.json).\nCesta: ${importDir.path}", Toast.LENGTH_LONG).show()
@@ -180,6 +187,7 @@ class UserListFragment : Fragment() {
             val jsonString = file.readText()
             val importedCount = dbManager.importDatabase(jsonString)
             if (importedCount >= 0) {
+                fingerprintManager.syncDbToService()
                 Toast.makeText(requireContext(), "$importedCount uživatelů úspěšně naimportováno.", Toast.LENGTH_SHORT).show()
                 refreshUserList()
             } else {

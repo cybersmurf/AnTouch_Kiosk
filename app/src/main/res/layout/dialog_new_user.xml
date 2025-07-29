@@ -34,8 +34,8 @@
         android:id="@+id/editTextWorkerId"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="text"
-        android:hint="1000"/>
+        android:hint="ID zaměstnance"
+        android:inputType="text" />
 
     <TextView
         android:layout_width="wrap_content"

@@ -158,7 +158,7 @@ class FingerprintManager(
         callback?.onRegistrationProgress(1, 3)
     }
 
-    private fun syncDbToService() {
+    fun syncDbToService() {
         ZKFingerService.clear()
         val allUsers = dbManager.getAllUsers()
         for (user in allUsers) {

@@ -14,10 +14,11 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/colorPrimary"
+            android:background="@android:drawable/title_bar"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            app:navigationIcon="@drawable/ic_arrow_back"
             app:title="@string/fingerprint_title"
-            app:navigationIcon="@drawable/ic_arrow_back" app:titleTextColor="@android:color/white" />
+            app:titleTextColor="@android:color/white" />
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"

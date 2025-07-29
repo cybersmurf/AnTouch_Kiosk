@@ -15,7 +15,7 @@ android {
 
     defaultConfig {
         applicationId = "cz.emistr.antouchkiosk"
-        minSdk = 21
+        minSdk = 28
         targetSdk = 35
         versionCode = buildNumber
         versionName = "$majorVersion.$minorVersion.$patchVersion"
