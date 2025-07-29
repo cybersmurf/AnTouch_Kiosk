@@ -27,6 +27,8 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+
+
         <Button
             android:id="@+id/buttonEdit"
             android:layout_width="match_parent"
@@ -39,6 +41,18 @@
             android:layout_height="70dp"
             android:text="@string/deleteFP" />
 
+        <Button
+            android:id="@+id/buttonImport"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:text="@string/importDB"/>
+
+        <Button
+            android:id="@+id/buttonExport"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:text="@string/exportDB" />
+
         <View
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -48,7 +62,7 @@
             android:id="@+id/buttonClose"
             android:layout_width="match_parent"
             android:layout_height="70dp"
-            android:text="@string/closeWindow"/>
+            android:text="@string/btnClose" />
     </LinearLayout>
 
 </LinearLayout>

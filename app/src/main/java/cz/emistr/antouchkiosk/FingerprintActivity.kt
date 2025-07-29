@@ -1,52 +1,50 @@
 package cz.emistr.antouchkiosk
 
-import android.app.PendingIntent
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.graphics.Bitmap
-import android.hardware.usb.UsbDevice
-import android.hardware.usb.UsbManager
-import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.MenuItem
+import android.view.View
+import android.widget.Button
+import android.widget.RadioButton
+import android.widget.RadioGroup
+import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.content.ContextCompat
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import timber.log.Timber
 
 class FingerprintActivity : AppCompatActivity(), FingerprintManager.FingerprintManagerCallback {
 
-    private val ACTION_USB_PERMISSION = "cz.emistr.antouchkiosk.USB_PERMISSION"
-
     lateinit var fingerprintManager: FingerprintManager
-        private set
+    private val sharedViewModel: SharedFingerprintViewModel by viewModels()
 
-    private lateinit var viewPager: ViewPager2
-    private lateinit var tabLayout: TabLayout
-    private var usbReceiver: BroadcastReceiver? = null
+    private lateinit var customSelectionDialog: ConstraintLayout
+    private lateinit var customConfirmDialog: ConstraintLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_fingerprint)
 
         val toolbar: Toolbar = findViewById(R.id.toolbar)
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        // ODSTRANĚNO: setSupportActionBar(toolbar) - Způsobovalo pád v NoActionBar tématu
+        // ODSTRANĚNO: supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        fingerprintManager = FingerprintManager(this, this)
-        lifecycle.addObserver(fingerprintManager)
-        fingerprintManager.initialize()
+        // PŘIDÁNO: Bezpečné nastavení navigace pro Toolbar
+        toolbar.setNavigationOnClickListener {
+            finish() // Ukončí aktivitu (stejné jako tlačítko zpět)
+        }
 
-        viewPager = findViewById(R.id.viewPager)
-        tabLayout = findViewById(R.id.tabLayout)
+
+        fingerprintManager = (application as AntouchKioskApp).fingerprintManager
+        customSelectionDialog = findViewById(R.id.custom_selection_dialog_view)
+        customConfirmDialog = findViewById(R.id.custom_confirm_dialog_view)
+
+        val viewPager: ViewPager2 = findViewById(R.id.viewPager)
+        val tabLayout: TabLayout = findViewById(R.id.tabLayout)
         viewPager.adapter = ViewPagerAdapter(this)
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
@@ -56,95 +54,125 @@ class FingerprintActivity : AppCompatActivity(), FingerprintManager.FingerprintM
                 else -> null
             }
         }.attach()
-
-        setupUSBReceiver()
-        onStartClick() // Automaticky se pokusíme připojit při startu
     }
 
-    fun onStartClick() {
-        val usbManager = getSystemService(Context.USB_SERVICE) as UsbManager
-        val zktecoDevice = usbManager.deviceList.values.find { it.vendorId == 6997 }
-        if (zktecoDevice == null) {
-            onError("Čtečka otisků prstů ZKTeco nebyla nalezena.")
-            return
-        }
-        if (!usbManager.hasPermission(zktecoDevice)) {
-            val permissionIntent = PendingIntent.getBroadcast(this, 0, Intent(ACTION_USB_PERMISSION), PendingIntent.FLAG_IMMUTABLE)
-            usbManager.requestPermission(zktecoDevice, permissionIntent)
+    override fun onResume() {
+        super.onResume()
+        fingerprintManager.setCallback(this)
+        if (fingerprintManager.isDeviceConnected()) {
+            sharedViewModel.setConnected(true)
+            sharedViewModel.setInfoText("Čtečka připojena.")
         } else {
-            fingerprintManager.connect(zktecoDevice)
+            sharedViewModel.setConnected(false)
+            sharedViewModel.setInfoText("Čtečka odpojena. Zkuste se vrátit a znovu otevřít obrazovku.")
         }
     }
 
-    private fun getFragment(position: Int): Fragment? {
-        return supportFragmentManager.findFragmentByTag("f$position")
+    override fun onPause() {
+        super.onPause()
+        fingerprintManager.removeCallback()
     }
 
-    // --- FingerprintManagerCallback ---
+    // --- Implementace callbacků a dialogů (zůstává beze změny) ---
+
     override fun onDeviceConnected(deviceInfo: String) {
-        runOnUiThread { (getFragment(0) as? FingerprintControlFragment)?.onDeviceConnected(deviceInfo) }
+        sharedViewModel.setConnected(true)
+        sharedViewModel.setInfoText("Čtečka připojena: $deviceInfo")
     }
+
     override fun onDeviceDisconnected() {
-        runOnUiThread { (getFragment(0) as? FingerprintControlFragment)?.onDeviceDisconnected() }
+        sharedViewModel.setConnected(false)
+        sharedViewModel.setInfoText("Čtečka odpojena.")
     }
+
     override fun onFingerprintCaptured(bitmap: Bitmap?) {
-        runOnUiThread { (getFragment(0) as? FingerprintControlFragment)?.onFingerprintCaptured(bitmap) }
+        sharedViewModel.setCapturedImage(bitmap)
     }
+
     override fun onRegistrationProgress(step: Int, totalSteps: Int) {
-        runOnUiThread { (getFragment(0) as? FingerprintControlFragment)?.onRegistrationProgress(step, totalSteps) }
+        sharedViewModel.setRegistrationStep(step, totalSteps)
     }
+
     override fun onRegistrationComplete(userId: String) {
-        runOnUiThread {
-            (getFragment(0) as? FingerprintControlFragment)?.onRegistrationComplete(userId)
-            (getFragment(1) as? UserListFragment)?.refreshUserList()
-        }
+        sharedViewModel.setRegistrationComplete(userId)
     }
+
     override fun onRegistrationFailed(error: String) {
-        runOnUiThread { (getFragment(0) as? FingerprintControlFragment)?.onRegistrationFailed(error) }
+        sharedViewModel.setInfoText("Registrace selhala: $error")
     }
-    override fun onIdentificationResult(userId: String?, score: Int) {
-        // Tuto funkci nyní v UI nevyužíváme, ale necháváme pro budoucí použití
-        runOnUiThread {
-            (getFragment(0) as? FingerprintControlFragment)?.onIdentificationResult(userId, score)
-        }
+
+    override fun onIdentificationComplete(user: FingerprintUser?, score: Int) {
+        sharedViewModel.setIdentificationResult(user, score)
     }
+
     override fun onError(error: String) {
-        runOnUiThread { (getFragment(0) as? FingerprintControlFragment)?.onError(error) }
+        sharedViewModel.setInfoText("Chyba: $error")
     }
 
-    // --- Zbytek Activity ---
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            finish()
-            return true
+    fun showImportDialog(files: List<String>, onConfirm: (String) -> Unit) {
+        customSelectionDialog.visibility = View.VISIBLE
+        val dialogTitle: TextView = customSelectionDialog.findViewById(R.id.selection_dialog_title)
+        val radioGroup: RadioGroup = customSelectionDialog.findViewById(R.id.selection_dialog_options)
+        val confirmButton: Button = customSelectionDialog.findViewById(R.id.selection_dialog_button_confirm)
+        val cancelButton: Button = customSelectionDialog.findViewById(R.id.selection_dialog_button_cancel)
+
+        dialogTitle.text = "Vyberte zálohu pro import"
+        radioGroup.removeAllViews()
+        var selectedFile: String? = null
+        confirmButton.isEnabled = false
+
+        files.forEach { fileName ->
+            val radioButton = RadioButton(this).apply {
+                text = fileName
+                textSize = 18f
+                setPadding(8, 8, 8, 8)
+            }
+            radioGroup.addView(radioButton)
         }
-        return super.onOptionsItemSelected(item)
-    }
 
-    private fun setupUSBReceiver() {
-        usbReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                if (intent?.action == ACTION_USB_PERMISSION) {
-                    val device: UsbDevice? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        intent.getParcelableExtra(UsbManager.EXTRA_DEVICE, UsbDevice::class.java)
-                    } else {
-                        @Suppress("DEPRECATION")
-                        intent.getParcelableExtra(UsbManager.EXTRA_DEVICE)
-                    }
-                    if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false) && device != null) {
-                        fingerprintManager.connect(device)
-                    } else {
-                        onError("Oprávnění pro USB zařízení zamítnuto.")
-                    }
-                }
+        if (files.size == 1) {
+            (radioGroup.getChildAt(0) as? RadioButton)?.isChecked = true
+            selectedFile = files[0]
+            confirmButton.isEnabled = true
+        }
+
+        radioGroup.setOnCheckedChangeListener { _, checkedId ->
+            val checkedRadioButton = findViewById<RadioButton>(checkedId)
+            selectedFile = checkedRadioButton.text.toString()
+            confirmButton.isEnabled = true
+        }
+
+        confirmButton.setOnClickListener {
+            selectedFile?.let {
+                onConfirm(it)
+                customSelectionDialog.visibility = View.GONE
             }
         }
-        val filter = IntentFilter(ACTION_USB_PERMISSION)
-        ContextCompat.registerReceiver(this, usbReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
+
+        cancelButton.setOnClickListener {
+            customSelectionDialog.visibility = View.GONE
+        }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        usbReceiver?.let { unregisterReceiver(it) }
+    fun showCustomConfirmDialog(title: String, message: String, positiveButtonText: String, onConfirm: () -> Unit) {
+        customConfirmDialog.visibility = View.VISIBLE
+        val dialogTitle: TextView = customConfirmDialog.findViewById(R.id.dialog_title)
+        val dialogMessage: TextView = customConfirmDialog.findViewById(R.id.dialog_message)
+        val confirmButton: Button = customConfirmDialog.findViewById(R.id.dialog_button_confirm)
+        val cancelButton: Button = customConfirmDialog.findViewById(R.id.dialog_button_cancel)
+
+        dialogTitle.text = title
+        dialogMessage.text = message
+        confirmButton.text = positiveButtonText
+
+        confirmButton.setOnClickListener {
+            onConfirm()
+            customConfirmDialog.visibility = View.GONE
+        }
+        cancelButton.setOnClickListener {
+            customConfirmDialog.visibility = View.GONE
+        }
     }
+
+    // Odstraněno onOptionsItemSelected, protože ho již spravuje toolbar.setNavigationOnClickListener
 }

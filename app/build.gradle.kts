@@ -125,6 +125,7 @@ dependencies {
 
     // Material Text Input Layout
     implementation("com.google.android.material:material:1.11.0")
+    implementation("androidx.fragment:fragment-ktx:1.5.7")
 
     implementation(libs.androidx.ui.android)
     implementation(fileTree(mapOf(

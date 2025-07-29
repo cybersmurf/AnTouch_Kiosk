@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import timber.log.Timber
 
 class FingerprintControlFragment : Fragment() {
@@ -22,6 +23,7 @@ class FingerprintControlFragment : Fragment() {
     private lateinit var buttonClose: Button
 
     private lateinit var fingerprintManager: FingerprintManager
+    private val sharedViewModel: SharedFingerprintViewModel by activityViewModels()
     private var registrationImages = mutableListOf<Bitmap>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -33,8 +35,39 @@ class FingerprintControlFragment : Fragment() {
         fingerprintManager = (activity as FingerprintActivity).fingerprintManager
         initializeViews(view)
         setupClickListeners()
-        updateUI()
+        observeViewModel() // Přesunuto sem pro jistotu
     }
+
+    // Tato metoda byla přejmenována z updateUI na observeViewModel a upravena
+    private fun observeViewModel() {
+        sharedViewModel.isConnected.observe(viewLifecycleOwner) { isConnected ->
+            updateConnectionStatus(isConnected)
+            updateButtons(isConnected)
+        }
+        sharedViewModel.infoText.observe(viewLifecycleOwner) { text ->
+            textInfo.text = text
+        }
+        sharedViewModel.capturedImage.observe(viewLifecycleOwner) { bitmap ->
+            handleCapturedImage(bitmap)
+        }
+        sharedViewModel.identificationResult.observe(viewLifecycleOwner) { result ->
+            val (user, score) = result
+            val resultText = if (user != null) {
+                "Identifikován: ${user.name} (${user.workerId}) [skóre: $score]"
+            } else {
+                "Otisk nerozpoznán."
+            }
+            textInfo.text = resultText
+        }
+        sharedViewModel.registrationStep.observe(viewLifecycleOwner) { (step, total) ->
+            textInfo.text = "Přiložte prst znovu (${step}/${total})"
+        }
+        sharedViewModel.registrationComplete.observe(viewLifecycleOwner) { workerId ->
+            textInfo.text = "Otisk pro zaměstnance $workerId úspěšně zaregistrován."
+            updateButtons(fingerprintManager.isDeviceConnected())
+        }
+    }
+
 
     private fun initializeViews(view: View) {
         imageScan1 = view.findViewById(R.id.imageScan1)
@@ -52,9 +85,48 @@ class FingerprintControlFragment : Fragment() {
         buttonCancelRegistration.setOnClickListener {
             fingerprintManager.cancelRegistration()
             resetRegistrationUI()
-            updateUI()
+            updateButtons(fingerprintManager.isDeviceConnected())
         }
         buttonClose.setOnClickListener { activity?.finish() }
+    }
+
+    private fun handleCapturedImage(bitmap: Bitmap?) {
+        bitmap ?: return
+        if (fingerprintManager.isRegistering) {
+            if (registrationImages.size < 3) {
+                registrationImages.add(bitmap)
+                when (registrationImages.size) {
+                    1 -> imageScan1.setImageBitmap(bitmap)
+                    2 -> imageScan2.setImageBitmap(bitmap)
+                    3 -> imageScan3.setImageBitmap(bitmap)
+                }
+            }
+        } else {
+            resetRegistrationUI(clearText = false)
+            imageScan1.setImageBitmap(bitmap)
+            textInfo.text = "Identifikuji..."
+        }
+    }
+
+    private fun updateConnectionStatus(isConnected: Boolean) {
+        val drawableId = if (isConnected) R.drawable.ic_circle_green else R.drawable.ic_circle_gray
+        textSensorStatus.setCompoundDrawablesWithIntrinsicBounds(drawableId, 0, 0, 0)
+    }
+
+    private fun updateButtons(isConnected: Boolean) {
+        buttonNew.isEnabled = isConnected && !fingerprintManager.isRegistering
+        buttonCancelRegistration.isEnabled = isConnected && fingerprintManager.isRegistering
+    }
+
+    // Ponechána pouze jedna verze této metody
+    private fun resetRegistrationUI(clearText: Boolean = true) {
+        registrationImages.clear()
+        imageScan1.setImageDrawable(null)
+        imageScan2.setImageDrawable(null)
+        imageScan3.setImageDrawable(null)
+        if (clearText) {
+            textInfo.text = "Přiložte prst na čtečku..."
+        }
     }
 
     private fun showNewUserDialog() {
@@ -68,7 +140,6 @@ class FingerprintControlFragment : Fragment() {
         val buttonOk = dialogView.findViewById<Button>(R.id.buttonOk)
         val buttonCancel = dialogView.findViewById<Button>(R.id.buttonCancel)
 
-        // Získání dalšího ID z manažeru
         editTextId.setText(fingerprintManager.getNextUserId().toString())
 
         buttonOk.setOnClickListener {
@@ -78,101 +149,12 @@ class FingerprintControlFragment : Fragment() {
                 Toast.makeText(requireContext(), "Kód zaměstnance je povinný", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            // Opravené volání metody
             fingerprintManager.startRegistration(workerId, name)
             resetRegistrationUI()
-            updateUI()
+            updateButtons(fingerprintManager.isDeviceConnected())
             dialog.dismiss()
         }
         buttonCancel.setOnClickListener { dialog.dismiss() }
         dialog.show()
-    }
-
-    private fun resetRegistrationUI() {
-        registrationImages.clear()
-        imageScan1.setImageDrawable(null)
-        imageScan2.setImageDrawable(null)
-        imageScan3.setImageDrawable(null)
-        textInfo.text = "Přiložte prst na čtečku..."
-    }
-
-    fun onDeviceConnected(deviceInfo: String) {
-        textSensorStatus.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_circle_green, 0, 0, 0)
-        textInfo.text = "Čtečka připojena. Pro zahájení stiskněte 'Nový'."
-        updateUI()
-    }
-
-    fun onDeviceDisconnected() {
-        textSensorStatus.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_circle_gray, 0, 0, 0)
-        textInfo.text = "Čtečka odpojena."
-        updateUI()
-    }
-
-    fun onFingerprintCaptured(bitmap: Bitmap?) {
-        bitmap?.let {
-            if (fingerprintManager.isRegistering) {
-                // Původní chování při registraci
-                if (registrationImages.size < 3) {
-                    registrationImages.add(it)
-                    when (registrationImages.size) {
-                        1 -> imageScan1.setImageBitmap(it)
-                        2 -> imageScan2.setImageBitmap(it)
-                        3 -> imageScan3.setImageBitmap(it)
-                    }
-                }
-            } else {
-                // Nové chování mimo registraci
-                resetRegistrationUI(clearText = false) // Vyčistí obrázky, ale ne text
-                imageScan1.setImageBitmap(it)
-                textInfo.text = "Identifikuji..."
-            }
-        }
-    }
-
-    fun onIdentificationResult(userInfo: String?, score: Int) {
-        val resultText = if (userInfo != null) {
-            "Identifikován: $userInfo [skóre: $score]"
-        } else {
-            "Otisk nerozpoznán."
-        }
-        textInfo.text = resultText
-    }
-
-    private fun resetRegistrationUI(clearText: Boolean = true) {
-        registrationImages.clear()
-        imageScan1.setImageDrawable(null)
-        imageScan2.setImageDrawable(null)
-        imageScan3.setImageDrawable(null)
-        if (clearText) {
-            textInfo.text = "Přiložte prst na čtečku..."
-        }
-    }
-
-    fun onRegistrationProgress(step: Int, totalSteps: Int) {
-        textInfo.text = "Přiložte prst znovu (${step}/${totalSteps})"
-    }
-
-    fun onRegistrationComplete(workerId: String) {
-        textInfo.text = "Otisk pro zaměstnance $workerId úspěšně zaregistrován."
-        updateUI()
-    }
-
-    fun onRegistrationFailed(error: String) {
-        textInfo.text = "Registrace selhala: $error"
-        updateUI()
-    }
-
-    fun onError(error: String) {
-        textInfo.text = "Chyba: $error"
-        Timber.e("Fingerprint error: $error")
-    }
-
-    fun updateUI() {
-        val isConnected = fingerprintManager.isDeviceConnected()
-        // Změna: isRegistering je nyní vlastnost
-        val isRegistering = fingerprintManager.isRegistering
-
-        buttonNew.isEnabled = isConnected && !isRegistering
-        buttonCancelRegistration.isEnabled = isConnected && isRegistering
     }
 }
