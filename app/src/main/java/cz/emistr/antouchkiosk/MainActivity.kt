@@ -101,6 +101,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             override fun onReceivedSslError(view: WebView?, handler: SslErrorHandler?, error: SslError?) {
                 handler?.proceed()
             }
+
+            override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+                val url = request?.url.toString()
+                if (url.startsWith("app://config")) {
+                    // Pokud URL začíná na "app://config", otevřeme FingerprintActivity
+                    val intent = Intent(this@MainActivity, FingerprintActivity::class.java)
+                    startActivity(intent)
+                    return true // Vrátíme true, což znamená, že jsme požadavek zpracovali
+                }
+                // Pro všechny ostatní URL necháme WebView, aby je zpracoval standardně
+                return super.shouldOverrideUrlLoading(view, request)
+            }
         }
         webView.webChromeClient = object : WebChromeClient() {
             override fun onPermissionRequest(request: PermissionRequest?) {
