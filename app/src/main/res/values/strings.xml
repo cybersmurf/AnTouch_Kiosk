@@ -126,5 +126,8 @@
     <string name="importDB">Import databáze</string>
     <string name="exportDB">Export databáze</string>
     <string name="backText">Zpět</string>
+    <string name="closeWindow">Zavřít</string>
+    <string name="deleteFP">Smazat</string>
+    <string name="editFPInfo">Editovat</string>
 
 </resources>
