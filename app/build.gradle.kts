@@ -33,7 +33,7 @@ android {
     buildTypes {
         debug {
             isDebuggable = true
-            applicationIdSuffix = ".debug"
+            //applicationIdSuffix = ".debug"
             // Debug verze bude mít jiný applicationId
             manifestPlaceholders["fileProviderAuthority"] = "cz.emistr.antouchkiosk.debug.fileprovider"
         }

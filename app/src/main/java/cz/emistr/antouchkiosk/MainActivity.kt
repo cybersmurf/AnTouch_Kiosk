@@ -4,6 +4,7 @@ import BeaconScanner
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.ActivityManager
+import android.app.AlertDialog
 import android.app.PendingIntent
 import android.app.admin.DevicePolicyManager
 import android.content.BroadcastReceiver
@@ -19,9 +20,11 @@ import android.hardware.usb.UsbManager
 import android.net.http.SslError
 import android.os.Build
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
 import android.view.MenuItem
 import android.webkit.*
+import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -105,12 +108,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
                 val url = request?.url.toString()
                 if (url.startsWith("app://config")) {
-                    // Pokud URL začíná na "app://config", otevřeme FingerprintActivity
-                    val intent = Intent(this@MainActivity, FingerprintActivity::class.java)
-                    startActivity(intent)
-                    return true // Vrátíme true, což znamená, že jsme požadavek zpracovali
+                    showPasswordDialogForFingerprintActivity()
+                    return true
                 }
-                // Pro všechny ostatní URL necháme WebView, aby je zpracoval standardně
                 return super.shouldOverrideUrlLoading(view, request)
             }
         }
@@ -253,9 +253,31 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 webView.loadUrl(homeUrl ?: "https://example.com")
             }
             R.id.nav_settings -> startActivity(Intent(this, SettingsActivity::class.java))
-            R.id.nav_fingerprint -> startActivity(Intent(this, FingerprintActivity::class.java))
+            R.id.nav_fingerprint -> showPasswordDialogForFingerprintActivity()
         }
         drawerLayout.closeDrawer(GravityCompat.START)
         return true
+    }
+
+    private fun showPasswordDialogForFingerprintActivity() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Zadejte heslo")
+
+        val input = EditText(this)
+        input.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_PASSWORD
+        builder.setView(input)
+
+        builder.setPositiveButton("OK") { dialog, _ ->
+            val password = input.text.toString()
+            if (password == "9009") {
+                startActivity(Intent(this, FingerprintActivity::class.java))
+            } else {
+                Toast.makeText(this, "Nesprávné heslo", Toast.LENGTH_SHORT).show()
+            }
+            dialog.dismiss()
+        }
+        builder.setNegativeButton("Zrušit") { dialog, _ -> dialog.cancel() }
+
+        builder.show()
     }
 }
