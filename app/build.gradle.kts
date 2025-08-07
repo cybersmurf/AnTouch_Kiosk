@@ -2,7 +2,7 @@
 val majorVersion = 1
 val minorVersion = 0
 val patchVersion = 0
-val buildNumber = 2  // This can be incremented as needed.
+val buildNumber = 3  // This can be incremented as needed.
 
 plugins {
     id("com.android.application")

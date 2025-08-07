@@ -7,18 +7,24 @@ import android.content.SharedPreferences
 import android.hardware.usb.UsbManager
 import android.os.Bundle
 import android.os.Build
+import android.text.InputType
 import android.widget.*
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.material.*
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStreamReader
+
+import android.app.AlertDialog
+import android.widget.EditText
 
 class SettingsActivity : AppCompatActivity() {
     private lateinit var preferences: SharedPreferences
@@ -45,7 +51,7 @@ class SettingsActivity : AppCompatActivity() {
         // Show password dialog when disabling kiosk mode
         kioskModeCheckbox.setOnCheckedChangeListener { _, isChecked ->
             if (!isChecked) {
-                showPasswordDialog()
+                ShowPasswordDialog()
             }
         }
     }
@@ -142,25 +148,44 @@ class SettingsActivity : AppCompatActivity() {
         Toast.makeText(this, "Settings saved", Toast.LENGTH_SHORT).show()
     }
 
-    private fun showPasswordDialog() {
-        setContent {
-            var showDialog by remember { mutableStateOf(true) }
+    private fun ShowPasswordDialog() {
+        // 1. Vytvoření dialogu pomocí standardního Builderu
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Zadejte heslo")
 
-            if (showDialog) {
-                PasswordDialog(
-                    onDismiss = { showDialog = false; kioskModeCheckbox.isChecked = true },
-                    onConfirm = { password ->
-                        if (password == "9009") {
-                            disableKioskMode()
-                        } else {
-                            Toast.makeText(this, "Incorrect password", Toast.LENGTH_SHORT).show()
-                            kioskModeCheckbox.isChecked = true
-                        }
-                        showDialog = false
-                    }
-                )
+        // 2. Vytvoření a nastavení políčka pro zadání textu
+        val input = EditText(this)
+        input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+        builder.setView(input)
+
+        // 3. Nastavení tlačítek a jejich logiky
+        builder.setPositiveButton("OK") { dialog, _ ->
+            val password = input.text.toString()
+            if (password == "9009") { // Heslo si můžete změnit
+                // Úspěšné zadání hesla
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    disableKioskMode()
+                } else {
+                    // Fallback pro starší verze Androidu
+                    preferences.edit().putBoolean("kiosk_mode", false).apply()
+                    Toast.makeText(this, "Kiosk mode disabled", Toast.LENGTH_SHORT).show()
+                    urlEditText.isEnabled = true
+                }
+            } else {
+                // Nesprávné heslo
+                Toast.makeText(this, "Nesprávné heslo", Toast.LENGTH_SHORT).show()
+                kioskModeCheckbox.isChecked = true // Vrátíme checkbox do původního stavu
             }
         }
+
+        builder.setNegativeButton("Zrušit") { dialog, _ ->
+            // Uživatel zrušil akci
+            kioskModeCheckbox.isChecked = true // Vrátíme checkbox do původního stavu
+            dialog.cancel()
+        }
+
+        // Zobrazení dialogu
+        builder.show()
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -186,7 +211,8 @@ class SettingsActivity : AppCompatActivity() {
                     value = password,
                     onValueChange = { password = it },
                     visualTransformation = PasswordVisualTransformation(),
-                    label = { Text("Password") }
+                    label = { Text("Password") },
+                    //keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.NumberPassword)
                 )
             },
             confirmButton = {

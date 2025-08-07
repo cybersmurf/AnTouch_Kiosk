@@ -264,11 +264,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         builder.setTitle("Zadejte heslo")
 
         val input = EditText(this)
-        input.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_PASSWORD
+        // Změna pro přijetí jakéhokoli textu jako hesla
+        input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
         builder.setView(input)
 
         builder.setPositiveButton("OK") { dialog, _ ->
             val password = input.text.toString()
+            // Heslo "9009" je zde stále pevně dané, můžete jej změnit podle potřeby.
             if (password == "9009") {
                 startActivity(Intent(this, FingerprintActivity::class.java))
             } else {

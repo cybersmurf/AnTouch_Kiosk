@@ -19,3 +19,16 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+-keep class com.zkteco.** { *; }
+-keep interface com.zkteco.** { *; }
+
+# Ponechá všechny třídy, které implementují ZKFPCallBack, aby se zabránilo problémům s zpětným voláním
+-keep class * implements com.zkteco.android.biometric.module.fingerprintreader.FingerprintSensor$ZKFPCallBack { *; }
+
+# Ponechá třídy související s USB komunikací
+-keep class com.zkteco.android.biometric.ZKUSBDeviceCtl { *; }
+
+# Pokud používáte jakékoli další vlastní třídy, které komunikují s nativními knihovnami, přidejte je také
+# Například:
+-keep class cz.emistr.antouchkiosk.FingerprintBridge { *; }
+-keep class cz.emistr.antouchkiosk.FingerprintManager { *; }
